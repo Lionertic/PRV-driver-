@@ -25,20 +25,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.example.lionertic.main.AsyncTask.Loca;
-import com.example.lionertic.main.AsyncTask.Routes;
 import com.example.lionertic.main.AsyncTask.SaveLoca;
 import com.example.lionertic.main.BuildConfig;
-import com.example.lionertic.main.CONSTANTS;
 import com.example.lionertic.main.MainActivity;
 import com.example.lionertic.main.R;
-import com.example.lionertic.main.RequestHandler;
-import com.example.lionertic.main.Service.DriverRouting;
 import com.example.lionertic.main.Service.LocationService;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -69,14 +59,8 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -163,16 +147,6 @@ public class Maps extends Fragment implements OnMapReadyCallback {
                 fm.beginTransaction().replace(R.id.fragment, m).commit();
             }
         });
-        fab1=v.findViewById(R.id.fab1);
-        fab1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(nearDrive()){
-                    Log.e("qscfthn",key[0]+key[1]);
-                    startDriverRounting();
-                }
-            }
-        });
         return v;
     }
 
@@ -192,74 +166,6 @@ public class Maps extends Fragment implements OnMapReadyCallback {
         ActivityManager manager = (ActivityManager) getActivity().getSystemService(getActivity().ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
             if("com.example.lionertic.main.Service.LocationService".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean nearDrive(){
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                CONSTANTS.NEAR,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-
-                            if(jsonObject.getInt("success")==1) {
-                                JSONArray jsonArray=jsonObject.getJSONArray("key");
-                                for(int i = 0 ; i <jsonArray.length();i++)
-                                    key[i]=jsonArray.getString(i);
-                                if (jsonArray.length()==1)
-                                    key[2]="";
-                                ret=true;
-                            }
-                            else{
-                                ret=false;
-                            }
-                        }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), error.getMessage()+"asdfghjkl", Toast.LENGTH_LONG).show();
-
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("lat", Double.toString(onChange.getLatitude()));
-                params.put("lon", Double.toString(onChange.getLongitude()));
-                return params;
-            }
-        };
-        RequestHandler.getInstance(getContext()).addToRequestQueue(stringRequest);
-
-        return ret;
-    }
-
-    private void startDriverRounting(){
-
-        if(!isDriverRountingRunning()){
-            Intent serviceIntent = new Intent(getActivity(), DriverRouting.class);
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
-                getActivity().startForegroundService(serviceIntent);
-            }else{
-                getActivity().startService(serviceIntent);
-            }
-        }
-    }
-    private boolean isDriverRountingRunning() {
-        ActivityManager manager = (ActivityManager) getActivity().getSystemService(getActivity().ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
-            if("com.example.lionertic.main.Service.DriverRouting".equals(service.service.getClassName())) {
                 return true;
             }
         }

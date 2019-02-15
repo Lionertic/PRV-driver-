@@ -52,10 +52,6 @@
             android:name=".Service.LocationService"
             android:enabled="true"
             android:exported="true" />
-        <service
-            android:name=".Service.DriverRouting"
-            android:enabled="true"
-            android:exported="true"></service>
     </application>
 
 </manifest>
