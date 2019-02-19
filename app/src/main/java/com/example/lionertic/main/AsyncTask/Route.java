@@ -2,7 +2,9 @@ package com.example.lionertic.main.AsyncTask;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -22,28 +24,28 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SaveLoca extends AsyncTask<Location, Void, String> {
+public class Route extends AsyncTask<String, Void, String> {
 
     Context context;
 
-    public SaveLoca(Context cnt) {
+    public Route(Context cnt) {
         context=cnt;
     }
 
     @Override
-    protected String doInBackground(final Location... urls) {
+    protected String doInBackground(final String... urls) {
         // Create URL object
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                CONSTANTS.INSERT,
+                CONSTANTS.ROUTE,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            if(jsonObject.getInt("success")==2){
-                                new Route(context).execute(Double.toString(urls[0].getLatitude()),Double.toString(urls[0].getLongitude()),jsonObject.getString("id"));
-                                Log.e("qwertyuiop",jsonObject.getString("id"));
-                            }
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q="+jsonObject.getString("lat")+","+jsonObject.getString("lon"));
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            context.startActivity(mapIntent);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -58,15 +60,15 @@ public class SaveLoca extends AsyncTask<Location, Void, String> {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("lat", Double.toString(urls[0].getLatitude()));
-                params.put("lon", Double.toString(urls[0].getLongitude()));
-                params.put("key", MainActivity.KEY);
+                params.put("lat", urls[0]);
+                params.put("lon", urls[1]);
+                params.put("id", urls[2]);
                 return params;
             }
         };
         RequestHandler.getInstance(context).addToRequestQueue(stringRequest);
 
-    return null;
+        return null;
     }
 
     @Override
