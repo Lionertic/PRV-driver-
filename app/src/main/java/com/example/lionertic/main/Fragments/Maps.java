@@ -140,6 +140,7 @@ public class Maps extends Fragment implements OnMapReadyCallback {
             public void onClick(View v) {
                 SharedPreferences preferences = getContext().getSharedPreferences("KEY", getContext().MODE_PRIVATE);
                 preferences.edit().putString("KEY", "").apply();
+                getActivity().stopService(new Intent(getActivity(),LocationService.class));
                 MainActivity.KEY = preferences.getString("KEY", "");
                 getActivity().setTitle("Sign In");
                 LogIn m = new LogIn();

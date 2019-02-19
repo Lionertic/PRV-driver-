@@ -18,7 +18,7 @@ public class LocationService extends Service {
 
     Handler mHandler = new Handler();
     Runnable mRunnable;
-
+    boolean c= true;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -54,9 +54,18 @@ public class LocationService extends Service {
         mHandler.postDelayed(mRunnable = new Runnable() {
             @Override
             public void run() {
-                new SaveLoca(MainActivity.context).execute();
-                mHandler.postDelayed(mRunnable, 5000);
+                if(c) {
+                    new SaveLoca(MainActivity.context).execute();
+                    mHandler.postDelayed(mRunnable, 5000);
+                }
             }
         }, 5000);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        c=false;
+        mHandler.removeCallbacks(mRunnable);
     }
 }

@@ -16,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.lionertic.main.CONSTANTS;
 import com.example.lionertic.main.Fragments.Maps;
+import com.example.lionertic.main.MainActivity;
 import com.example.lionertic.main.R;
 import com.example.lionertic.main.RequestHandler;
 
@@ -48,6 +49,7 @@ public class SignIn extends AsyncTask<String, Void, Void> {
                                 Toast.makeText(context, "Successful!!", Toast.LENGTH_LONG).show();
                                 SharedPreferences sd = context.getSharedPreferences("KEY", context.MODE_PRIVATE);
                                 sd.edit().putString("KEY", jsonObject.getString("KEY")).commit();
+                                MainActivity.KEY=jsonObject.getString("KEY");
                                 activity.setTitle("Maps");
                                 Maps m = new Maps();
                                 FragmentManager fm = ((FragmentActivity)activity).getSupportFragmentManager();

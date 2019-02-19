@@ -33,7 +33,6 @@ public class SaveLoca extends AsyncTask<Location, Void, String> {
     @Override
     protected String doInBackground(final Location... urls) {
         // Create URL object
-        Log.e("qwertyuiop",Maps.mCurrentLocation.toString());
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
                 CONSTANTS.INSERT,
                 new Response.Listener<String>() {
@@ -41,7 +40,6 @@ public class SaveLoca extends AsyncTask<Location, Void, String> {
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -50,7 +48,7 @@ public class SaveLoca extends AsyncTask<Location, Void, String> {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(context, error.getMessage()+"its nothing", Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
