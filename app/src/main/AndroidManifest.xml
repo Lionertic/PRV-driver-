@@ -21,6 +21,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <service
+            android:name=".Service.RouteService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

@@ -1,13 +1,13 @@
 package com.example.lionertic.main.AsyncTask;
 
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
+import android.os.Bundle;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -15,14 +15,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.lionertic.main.CONSTANTS;
-import com.example.lionertic.main.Fragments.Maps;
-import com.example.lionertic.main.MainActivity;
 import com.example.lionertic.main.RequestHandler;
+import com.example.lionertic.main.Service.RouteService;
+import com.google.maps.model.LatLng;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.lang.Double.parseDouble;
 
 public class Route extends AsyncTask<String, Void, String> {
 
@@ -42,10 +45,18 @@ public class Route extends AsyncTask<String, Void, String> {
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            Uri gmmIntentUri = Uri.parse("google.navigation:q="+jsonObject.getString("lat")+","+jsonObject.getString("lon"));
-                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                            mapIntent.setPackage("com.google.android.apps.maps");
-                            context.startActivity(mapIntent);
+                            LatLng latLng = new LatLng(Double.parseDouble(jsonObject.getString("lat")),Double.parseDouble(jsonObject.getString("lon")));
+                            Intent serviceIntent = new Intent(context, RouteService.class);
+                            String query = "google.navigation:q="+latLng.lat+","+latLng.lng;
+                            serviceIntent.putExtra("query",query);
+
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
+                                context.startForegroundService(serviceIntent);
+                            }else{
+                                context.startService(serviceIntent);
+                            }
+
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

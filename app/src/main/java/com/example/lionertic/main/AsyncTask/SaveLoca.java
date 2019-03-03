@@ -1,7 +1,9 @@
 package com.example.lionertic.main.AsyncTask;
 
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -16,6 +18,8 @@ import com.example.lionertic.main.CONSTANTS;
 import com.example.lionertic.main.Fragments.Maps;
 import com.example.lionertic.main.MainActivity;
 import com.example.lionertic.main.RequestHandler;
+import com.example.lionertic.main.Service.RouteService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +34,20 @@ public class SaveLoca extends AsyncTask<Location, Void, String> {
         context=cnt;
     }
 
+    private void startRouteService(final Location urls,String id){
+        if(!isRouteServiceRunning()){
+            new Route(context).execute(Double.toString(urls.getLatitude()),Double.toString(urls.getLongitude()),id);
+        }
+    }
+    private boolean isRouteServiceRunning() {
+        ActivityManager manager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+            if("com.example.lionertic.main.Service.RouteService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
     @Override
     protected String doInBackground(final Location... urls) {
         // Create URL object
@@ -41,7 +59,7 @@ public class SaveLoca extends AsyncTask<Location, Void, String> {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             if(jsonObject.getInt("success")==2){
-                                new Route(context).execute(Double.toString(urls[0].getLatitude()),Double.toString(urls[0].getLongitude()),jsonObject.getString("id"));
+                                startRouteService(urls[0],jsonObject.getString("id"));
                                 Log.e("qwertyuiop",jsonObject.getString("id"));
                             }
                         } catch (JSONException e) {
