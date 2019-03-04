@@ -1,19 +1,21 @@
-package com.example.lionertic.main.AsyncTask;
+package com.example.squad.driver.AsyncTask;
 
 
+import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
+import android.location.Location;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.example.lionertic.main.CONSTANTS;
-import com.example.lionertic.main.RequestHandler;
-import com.example.lionertic.main.Service.RouteService;
-import com.google.maps.model.LatLng;
+import com.example.squad.driver.CONSTANTS;
+import com.example.squad.driver.MainActivity;
+import com.example.squad.driver.RequestHandler;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,37 +23,43 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class Route extends AsyncTask<String, Void, String> {
+public class SaveLoca extends AsyncTask<Location, Void, String> {
 
     Context context;
 
-    public Route(Context cnt) {
+    public SaveLoca(Context cnt) {
         context=cnt;
     }
 
+    private void startRouteService(final Location urls,String id){
+        if(!isRouteServiceRunning()){
+            new Route(context).execute(Double.toString(urls.getLatitude()),Double.toString(urls.getLongitude()),id);
+        }
+    }
+    private boolean isRouteServiceRunning() {
+        ActivityManager manager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+            if("com.example.lionertic.main.Service.RouteService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
-    protected String doInBackground(final String... urls) {
+    protected String doInBackground(final Location... urls) {
         // Create URL object
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                CONSTANTS.ROUTE,
+                CONSTANTS.INSERT,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            LatLng latLng = new LatLng(Double.parseDouble(jsonObject.getString("lat")),Double.parseDouble(jsonObject.getString("lon")));
-                            Intent serviceIntent = new Intent(context, RouteService.class);
-                            String query = "google.navigation:q="+latLng.lat+","+latLng.lng;
-                            serviceIntent.putExtra("query",query);
-
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
-                                context.startForegroundService(serviceIntent);
-                            }else{
-                                context.startService(serviceIntent);
+                            if(jsonObject.getInt("success")==2){
+                                startRouteService(urls[0],jsonObject.getString("id"));
+                                Log.e("qwertyuiop",jsonObject.getString("id"));
                             }
-
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -66,15 +74,15 @@ public class Route extends AsyncTask<String, Void, String> {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("lat", urls[0]);
-                params.put("lon", urls[1]);
-                params.put("id", urls[2]);
+                params.put("lat", Double.toString(urls[0].getLatitude()));
+                params.put("lon", Double.toString(urls[0].getLongitude()));
+                params.put("key", MainActivity.KEY);
                 return params;
             }
         };
         RequestHandler.getInstance(context).addToRequestQueue(stringRequest);
 
-        return null;
+    return null;
     }
 
     @Override

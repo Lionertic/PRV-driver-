@@ -1,10 +1,13 @@
-package com.example.lionertic.main.Service;
+package com.example.squad.driver.Service;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,7 +16,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.lionertic.main.R;
+import com.example.squad.driver.Fragments.Maps;
+import com.example.squad.driver.MainActivity;
+import com.example.squad.driver.R;
 
 public class RouteService extends Service {
 
@@ -40,6 +45,7 @@ public class RouteService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -66,6 +72,16 @@ public class RouteService extends Service {
         mWindowManager.addView(mChatHeadView, params);
 
         //Drag and move chat head using user's touch action.
+        ImageView redirect = mChatHeadView.findViewById(R.id.redirect_btn);
+        redirect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getBaseContext(), MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.putExtra("route",true);
+                startActivity(i);
+            }
+        });
         final ImageView chatHeadImage = (ImageView) mChatHeadView.findViewById(R.id.chat_head_profile_iv);
         chatHeadImage.setOnTouchListener(new View.OnTouchListener() {
             private int lastAction;
@@ -95,10 +111,6 @@ public class RouteService extends Service {
                         //to identify if the user clicked the view or not.
                         if (lastAction == MotionEvent.ACTION_DOWN) {
                             //Open the chat conversation click.
-//                            activity.setTitle("Sign Up");
-//                            Maps m = new Maps();
-//                            FragmentManager fm = activity.getFragmentManager();
-//                            fm.beginTransaction().replace(R.id.fragment, m).commit();
 
                             //close the service and remove the chat heads
                             stopSelf();
@@ -118,7 +130,6 @@ public class RouteService extends Service {
                 return false;
             }
         });
-
     }
 
     @Override

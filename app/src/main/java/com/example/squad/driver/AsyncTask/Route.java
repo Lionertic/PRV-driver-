@@ -1,4 +1,4 @@
-package com.example.lionertic.main.AsyncTask;
+package com.example.squad.driver.AsyncTask;
 
 
 import android.content.Context;
@@ -10,9 +10,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.example.lionertic.main.CONSTANTS;
-import com.example.lionertic.main.RequestHandler;
-import com.example.lionertic.main.Service.RouteService;
+import com.example.squad.driver.CONSTANTS;
+import com.example.squad.driver.RequestHandler;
+import com.example.squad.driver.Service.RouteService;
 import com.google.maps.model.LatLng;
 
 import org.json.JSONException;
