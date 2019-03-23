@@ -2,7 +2,7 @@ package com.example.squad.driver;
 
 public class CONSTANTS {
 
-    private static final String ROOT_URL = "http://maps.serveo.net/Server/";
+    private static final String ROOT_URL = "http://map.serveo.net/Server/";
 
     public static final String INSERT = ROOT_URL+"Driver/update.php";
 
