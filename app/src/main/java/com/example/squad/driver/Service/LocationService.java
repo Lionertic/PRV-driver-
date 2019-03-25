@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import com.example.squad.driver.AsyncTask.SaveLoca;
+import com.example.squad.driver.Fragments.Maps;
 import com.example.squad.driver.MainActivity;
 
 public class LocationService extends Service {
@@ -55,7 +56,7 @@ public class LocationService extends Service {
             @Override
             public void run() {
                 if(c) {
-                    new SaveLoca(MainActivity.context).execute();
+                    new SaveLoca(MainActivity.context).execute(Maps.onChange);
                     mHandler.postDelayed(mRunnable, 5000);
                 }
             }

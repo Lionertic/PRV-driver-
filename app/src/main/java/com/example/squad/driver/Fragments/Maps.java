@@ -92,7 +92,7 @@ public class Maps extends Fragment implements OnMapReadyCallback {
     private LocationCallback mLocationCallback;
     public static Location mCurrentLocation;
     private Boolean mRequestingLocationUpdates;
-    private Location onChange;
+    public static Location onChange;
 
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     private String mLastUpdateTime;

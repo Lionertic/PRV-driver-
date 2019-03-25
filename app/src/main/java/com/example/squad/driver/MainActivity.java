@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static Activity activity;
     public static Context context;
     public static ProgressDialog progressDialog;
-
+    public static AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         activity = this;
-        context = getApplicationContext();
+        context = MainActivity.this;
         progressDialog = new ProgressDialog(this);
         Log.e("asdfghjkl", "123456789");
 

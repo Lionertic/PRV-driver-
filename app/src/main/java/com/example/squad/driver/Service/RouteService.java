@@ -1,13 +1,17 @@
 package com.example.squad.driver.Service;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Service;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,15 +20,29 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.example.squad.driver.CONSTANTS;
 import com.example.squad.driver.Fragments.Maps;
 import com.example.squad.driver.MainActivity;
 import com.example.squad.driver.R;
+import com.example.squad.driver.RequestHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RouteService extends Service {
 
     private WindowManager mWindowManager;
     private View mChatHeadView;
     String query;
+    Intent mapIntent;
     public RouteService() {
 
     }
@@ -38,10 +56,9 @@ public class RouteService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         query=intent.getExtras().getString("query");
         Uri gmmIntentUri = Uri.parse(query);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mapIntent.setPackage("com.google.android.apps.maps");
-        getBaseContext().startActivity(mapIntent);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -69,7 +86,6 @@ public class RouteService extends Service {
 
         //Add the view to the window
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        mWindowManager.addView(mChatHeadView, params);
 
         //Drag and move chat head using user's touch action.
         ImageView redirect = mChatHeadView.findViewById(R.id.redirect_btn);
@@ -130,11 +146,83 @@ public class RouteService extends Service {
                 return false;
             }
         });
+        Log.e("routeservlog","check");
+        AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.context)
+                .setTitle("REQ")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendReply(1);
+                        mWindowManager.addView(mChatHeadView, params);
+                        getBaseContext().startActivity(mapIntent);
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendReply(-1);
+                    }
+                }).setCancelable(false)
+                ;
+        MainActivity.alertDialog=builder.create();
+        MainActivity.alertDialog
+                .getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL);
+        MainActivity.alertDialog.show();
+
+        final Handler handler  = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (MainActivity.alertDialog.isShowing()) {
+                    MainActivity.alertDialog.dismiss();
+                }
+            }
+        };
+
+        MainActivity.alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                handler.removeCallbacks(runnable);
+            }
+        });
+
+        handler.postDelayed(runnable, 40000);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mChatHeadView != null) mWindowManager.removeView(mChatHeadView);
+        try {
+            if (mChatHeadView != null) mWindowManager.removeView(mChatHeadView);
+        }
+        catch (Exception e){
+
+        }
+    }
+
+    void sendReply(final int reply){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                CONSTANTS.ANS,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+//                        Toast.makeText(context, error.getMessage()+"its nothing", Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("ans", Integer.toString(reply));
+                params.put("key", MainActivity.KEY);
+                return params;
+            }
+        };
+        RequestHandler.getInstance(MainActivity.context).addToRequestQueue(stringRequest);
+
     }
 }
